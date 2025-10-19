@@ -1,5 +1,6 @@
 import { YankiConnect } from "yanki-connect";
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { AnkiCardParse } from "@/entrypoints/content/component/anki/anki-card-parse";
 
 // 로컬 스토리지에 사용할 키
 const LOCAL_STORAGE_KEY = "ankiTargetDecks";
@@ -210,9 +211,27 @@ export const DeckSetting = () => {
     );
   }
 
+  // @TODO Delete
+  const firstCardInfo = studyCardInfos.length > 0 ? studyCardInfos[0] : null;
+
   // 렌더링
   return (
     <div>
+      {firstCardInfo && (
+        <div className="anki-card-container">
+          {/* Question 섹션 */}
+          <div className="anki-card-question">
+            <h2>질문</h2>
+            <AnkiCardParse htmlContent={firstCardInfo.question} />
+          </div>
+          <p>-------------------------------------</p>
+          {/* Answer 섹션 (보통 토글 등으로 숨김 처리) */}
+          <div className="anki-card-answer">
+            <h2>답변</h2>
+            <AnkiCardParse htmlContent={firstCardInfo.answer} />
+          </div>
+        </div>
+      )}
       {/* 현재 스터디 설정 상태 (디버깅/확인용) */}
       <div className="border-gray-200">
         <h2 className="text-xl font-semibold text-gray-700 mb-4">
