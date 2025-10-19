@@ -18,7 +18,7 @@ function App() {
       </div>
 
       <h1 className="text-xl font-semibold text-center text-gray-800">
-        WXT + React
+        WXT + React!!
       </h1>
 
       <div className="bg-gray-100 p-4 rounded-md shadow-inner flex flex-col items-center">
