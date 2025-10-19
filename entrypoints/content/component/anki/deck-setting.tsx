@@ -1,4 +1,8 @@
 import { YankiConnect } from "yanki-connect";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+
+// 로컬 스토리지에 사용할 키
+const LOCAL_STORAGE_KEY = "ankiTargetDecks";
 
 // 검색 스로틀링 지연 시간 (밀리초)
 const THROTTLE_DELAY = 300;
@@ -15,7 +19,20 @@ export const DeckSetting = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   // 덱별 스터디 설정 { [deckName: string]: boolean }
-  const [targetDecks, setTargetDecks] = useState<string[]>([]);
+  // ⭐️ 초기 상태를 로컬 스토리지에서 불러오는 함수로 설정
+  const [targetDecks, setTargetDecks] = useState<string[]>(() => {
+    try {
+      const storedValue = localStorage.getItem(LOCAL_STORAGE_KEY);
+      // 저장된 값이 있으면 JSON.parse하여 반환, 없거나 에러 발생 시 빈 배열 반환
+      return storedValue ? JSON.parse(storedValue) : [];
+    } catch (error) {
+      console.error(
+        "로컬 스토리지에서 'targetDecks' 로드 중 에러 발생:",
+        error
+      );
+      return [];
+    }
+  });
 
   // 스로틀링 타이머 관리를 위한 Ref
   const throttleTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -23,7 +40,7 @@ export const DeckSetting = () => {
   // 로딩 상태
   const [isLoading, setIsLoading] = useState(true);
 
-  // 1. 초기 덱 목록 로드
+  // 1. 초기 덱 목록 로드 (AnkiConnect)
   useEffect(() => {
     setIsLoading(true);
 
@@ -40,7 +57,17 @@ export const DeckSetting = () => {
       });
   }, []);
 
-  // 2. 검색 입력 핸들러 (스로틀링 적용)
+  // ⭐️ 2. targetDecks 변경 시 로컬 스토리지에 저장
+  useEffect(() => {
+    try {
+      // 배열을 문자열로 변환하여 로컬 스토리지에 저장
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(targetDecks));
+    } catch (error) {
+      console.error("로컬 스토리지에 'targetDecks' 저장 중 에러 발생:", error);
+    }
+  }, [targetDecks]); // targetDecks가 변경될 때마다 실행
+
+  // 3. 검색 입력 핸들러 (스로틀링 적용)
   const handleSearchChange = useCallback((event: any) => {
     const value = event.target.value;
     setSearchInput(value); // UI 입력 값은 즉시 업데이트
@@ -66,7 +93,7 @@ export const DeckSetting = () => {
     };
   }, []);
 
-  // 3. 필터링된 덱 목록 계산 (searchTerm 변경 시에만 다시 계산)
+  // 4. 필터링된 덱 목록 계산 (searchTerm 변경 시에만 다시 계산)
   const filteredDecks = useMemo(() => {
     if (!searchTerm) {
       return decks;
@@ -75,34 +102,28 @@ export const DeckSetting = () => {
     return decks.filter((deck) => deck.toLowerCase().includes(searchTerm));
   }, [decks, searchTerm]);
 
-  // 4. 스터디 토글 핸들러
+  // 5. 스터디 토글 핸들러
   const handleToggleStudy = useCallback(
     (deckName: string) => {
-      const isStudying = (() => {
-        if (!targetDecks) {
-          return false;
-        }
-
-        if (targetDecks.length === 0) {
-          return false;
-        }
-
-        const matched = !!targetDecks.find((item) => item === deckName);
-
-        return matched;
-      })();
+      const isStudying = targetDecks.includes(deckName);
 
       if (isStudying) {
+        // 제거
         setTargetDecks((prevSettings) =>
           prevSettings.filter((item) => item !== deckName)
         );
       } else {
+        // 추가
         setTargetDecks((prevSettings) => [...prevSettings, deckName]);
       }
     },
     [targetDecks]
   );
 
+  // targetDecks에 deckName이 포함되어 있는지 확인하는 함수 (코드 중복 최소화)
+  const isDeckStudying = (deckName: string) => targetDecks.includes(deckName);
+
+  // 로딩 UI
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-8 bg-gray-50 min-h-screen">
@@ -112,32 +133,33 @@ export const DeckSetting = () => {
     );
   }
 
+  // 렌더링
   return (
     <div>
       {/* 현재 스터디 설정 상태 (디버깅/확인용) */}
-      <div className="mt-8 pt-6 border-t border-gray-200">
+      <div className="border-gray-200">
         <h2 className="text-xl font-semibold text-gray-700 mb-4">
           현재 선택된 스터디 덱:
         </h2>
         <div className="flex flex-wrap gap-2">
-          {/* {Object.entries(targetDecks)
-            .filter(([, isStudying]) => isStudying)
-            .map(([deckName]) => (
+          {targetDecks.length > 0 ? (
+            targetDecks.map((deckName) => (
               <span
                 key={deckName}
                 className="px-3 py-1 text-sm bg-indigo-100 text-indigo-700 rounded-full shadow-sm"
               >
                 {deckName}
               </span>
-            ))} */}
-        </div>
-        {/* {Object.keys(targetDecks).length > 0 &&
-          Object.values(targetDecks).every((setting) => !setting) && (
+            ))
+          ) : (
             <p className="text-gray-500 text-sm">
               현재 스터디할 덱이 선택되지 않았습니다.
             </p>
-          )} */}
+          )}
+        </div>
       </div>
+
+      <hr className="my-6" />
 
       {/* 1. 검색창 */}
       <div className="mb-6">
@@ -160,19 +182,7 @@ export const DeckSetting = () => {
         <div className="space-y-3">
           {filteredDecks.length > 0 ? (
             filteredDecks.map((deckName) => {
-              const isStudying = (() => {
-                if (!targetDecks) {
-                  return false;
-                }
-
-                if (targetDecks.length === 0) {
-                  return false;
-                }
-
-                const matched = !!targetDecks.find((item) => item === deckName);
-
-                return matched;
-              })();
+              const isStudying = isDeckStudying(deckName);
 
               return (
                 <div
