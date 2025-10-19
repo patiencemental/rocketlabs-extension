@@ -2,10 +2,11 @@
 import { Button } from "@/components/ui/button"; // shadcn/ui 버튼 컴포넌트 경로
 import { RocketIcon } from "lucide-react"; // 아이콘 (예시)
 
-export const FloatingButton = () => {
+export const FloatingMenuButton = () => {
   const handleClick = () => {
     console.log("Floating Button Clicked!");
     // 여기에 원하는 동작 로직 추가 (예: 팝업 열기, 데이터 저장 등)
+    window.alert("hello world");
   };
 
   return (
@@ -21,11 +22,10 @@ export const FloatingButton = () => {
       {/* shadcn Button 컴포넌트 사용 */}
       <Button
         size="icon"
-        className="h-12 w-12 rounded-full shadow-lg" // 크기 및 스타일 조정
+        className="p-4 h-16 w-16 bg-gray-500 rounded-full shadow-lg" // 크기 및 스타일 조정
         onClick={handleClick}
       >
-        hello world
-        <RocketIcon className="h-6 w-6" />
+        <RocketIcon className="h-8 w-8" />
       </Button>
     </div>
   );

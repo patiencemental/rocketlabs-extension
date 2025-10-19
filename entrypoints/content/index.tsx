@@ -10,7 +10,6 @@ export default defineContentScript({
       name: "language-learning-content-box",
       position: "inline",
       onMount: (container) => {
-        console.log(container);
         const root = ReactDOM.createRoot(container);
         root.render(<App />);
         return root;

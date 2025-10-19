@@ -1,12 +1,12 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
 import { browser } from "wxt/browser";
-import { FloatingButton } from "@/components/floating-button";
+import { FloatingMenuButton } from "@/entrypoints/content/component/floating-menu-button";
 
 const domLoaded = () => {
   console.log("dom loaded");
 };
 
-export default () => {
+const App = () => {
   useEffect(() => {
     if (document.readyState === "complete") {
       // load event has already fired, run your code or function here
@@ -23,5 +23,7 @@ export default () => {
     }
   }, []);
 
-  return <FloatingButton />;
+  return <FloatingMenuButton />;
 };
+
+export default App;
