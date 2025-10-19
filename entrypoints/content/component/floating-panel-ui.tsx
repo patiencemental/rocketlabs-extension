@@ -1,5 +1,6 @@
 // src/components/FloatingPanel/FloatingPanelUI.tsx
 
+import { DeckSetting } from "@/entrypoints/content/component/anki/deck-setting";
 import {
   Colors,
   Position,
@@ -10,7 +11,7 @@ import { JSX } from "react";
 
 // 탭 정보와 이름을 정의합니다.
 const tabs: { key: string; name: string; component: JSX.Element }[] = [
-  { key: "deck-setting", name: "덱", component: <div>덱 세팅</div> },
+  { key: "deck-setting", name: "덱", component: <DeckSetting /> },
   { key: "study", name: "학습", component: <div>학습</div> },
 ];
 

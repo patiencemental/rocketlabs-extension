@@ -6,5 +6,10 @@ export default defineConfig({
   modules: ["@wxt-dev/module-react"],
   vite: () => ({
     plugins: [tailwindcss()],
+    build: {
+      rollupOptions: {
+        external: ["open"],
+      },
+    },
   }),
 });

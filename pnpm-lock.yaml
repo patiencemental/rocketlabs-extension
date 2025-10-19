@@ -38,6 +38,9 @@ importers:
       tailwindcss:
         specifier: ^4.0.9
         version: 4.1.14
+      yanki-connect:
+        specifier: ^3.0.9
+        version: 3.0.9
     devDependencies:
       '@types/node':
         specifier: ^22.15.17
@@ -551,6 +554,9 @@ packages:
 
   '@types/minimatch@3.0.5':
     resolution: {integrity: sha512-Klz949h02Gz2uZCMGwDUSDS1YBlTdDDgbWHi+81l29tQALUtvz4rAYi5uoVhE5Lagoq6DeqAUlbrHvW/mXDgdQ==}
+
+  '@types/node@18.19.130':
+    resolution: {integrity: sha512-GRaXQx6jGfL8sKfaIDD6OupbIHBr9jv7Jnaml9tB7l4v068PAOXqfcujMMo5PhbIs6ggR1XODELqahT2R8v0fg==}
 
   '@types/node@22.18.11':
     resolution: {integrity: sha512-Gd33J2XIrXurb+eT2ktze3rJAfAp9ZNjlBdh4SVgyrKEOADwCbdUDaK7QgJno8Ue4kcajscsKqu6n8OBG3hhCQ==}
@@ -1893,6 +1899,9 @@ packages:
   uhyphen@0.2.0:
     resolution: {integrity: sha512-qz3o9CHXmJJPGBdqzab7qAYuW8kQGKNEuoHFYrBwV6hWIMcpAmxDLXojcHfFr9US1Pe6zUswEIJIbLI610fuqA==}
 
+  undici-types@5.26.5:
+    resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
+
   undici-types@6.21.0:
     resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
 
@@ -2042,6 +2051,10 @@ packages:
   yallist@5.0.0:
     resolution: {integrity: sha512-YgvUTfwqyc7UXVMrB+SImsVYSmTS8X/tSrtdNZMImM+n7+QTriRXyXim0mBrTXNeqzVF0KWGgHPeiyViFFrNDw==}
     engines: {node: '>=18'}
+
+  yanki-connect@3.0.9:
+    resolution: {integrity: sha512-kU63+TUMyippF4iLqdh3FY8ChMc9bqBLNcqI7NIN0ZqMp96qUD+8T84aUdFl3NuiyPiYDbzK/pPQ8RlsxblPCw==}
+    engines: {node: ^18.15.0 || >=20.11.0}
 
   yargs-parser@20.2.9:
     resolution: {integrity: sha512-y11nGElTIV+CT3Zv9t7VKl+Q3hTQoT9a1Qzezhhl6Rp21gJ/IVTW7Z3y9EWXhuUBC2Shnf+DX0antecpAwSP8w==}
@@ -2413,6 +2426,10 @@ snapshots:
   '@types/har-format@1.2.16': {}
 
   '@types/minimatch@3.0.5': {}
+
+  '@types/node@18.19.130':
+    dependencies:
+      undici-types: 5.26.5
 
   '@types/node@22.18.11':
     dependencies:
@@ -3733,6 +3750,8 @@ snapshots:
 
   uhyphen@0.2.0: {}
 
+  undici-types@5.26.5: {}
+
   undici-types@6.21.0: {}
 
   unimport@5.5.0:
@@ -3966,6 +3985,11 @@ snapshots:
   y18n@5.0.8: {}
 
   yallist@5.0.0: {}
+
+  yanki-connect@3.0.9:
+    dependencies:
+      '@types/node': 18.19.130
+      open: 10.2.0
 
   yargs-parser@20.2.9: {}
 

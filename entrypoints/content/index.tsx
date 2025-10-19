@@ -4,6 +4,7 @@ import "@/assets/tailwind.css";
 
 export default defineContentScript({
   matches: ["*://*.notion.com/*"],
+  // matches: ["http://*", "https://*"],
   cssInjectionMode: "ui",
   async main(ctx) {
     const ui = await createShadowRootUi(ctx, {
