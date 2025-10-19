@@ -9,8 +9,21 @@ const THROTTLE_DELAY = 300;
 
 const client = new YankiConnect();
 
+type Deck = {
+  id: number;
+  deckPath: string;
+  stats: {
+    deck_id: number;
+    learn_count: number;
+    name: string;
+    new_count: number;
+    review_count: number;
+    total_in_deck: number;
+  };
+};
+
 export const DeckSetting = () => {
-  const [decks, setDecks] = useState<string[]>([]);
+  const [decks, setDecks] = useState<Deck[]>([]);
 
   // 현재 검색어
   const [searchInput, setSearchInput] = useState("");
@@ -44,17 +57,31 @@ export const DeckSetting = () => {
   useEffect(() => {
     setIsLoading(true);
 
-    client.deck
-      .deckNames()
-      .then((result) => {
+    try {
+      (async () => {
+        const deckNameAndIds = await client.deck.deckNamesAndIds();
+        const deckNames = Object.keys(deckNameAndIds);
+
+        const deckStats = await client.deck.getDeckStats({
+          decks: deckNames,
+        });
+
+        const result = Object.entries(deckNameAndIds).map(([deckName, id]) => {
+          const matchedStats = deckStats[id];
+          return {
+            id,
+            deckPath: deckName,
+            stats: matchedStats,
+          };
+        });
+
         setDecks(result);
-      })
-      .catch((error) => {
-        console.error("AnkiConnect error:", error);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+      })();
+    } catch (error) {
+      window.alert(error);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
   // ⭐️ 2. targetDecks 변경 시 로컬 스토리지에 저장
@@ -99,7 +126,9 @@ export const DeckSetting = () => {
       return decks;
     }
 
-    return decks.filter((deck) => deck.toLowerCase().includes(searchTerm));
+    return decks.filter((deck) =>
+      deck.deckPath.toLowerCase().includes(searchTerm)
+    );
   }, [decks, searchTerm]);
 
   // 5. 스터디 토글 핸들러
@@ -181,18 +210,16 @@ export const DeckSetting = () => {
         /* 2. 필터링된 덱 리스트 */
         <div className="space-y-3">
           {filteredDecks.length > 0 ? (
-            filteredDecks.map((deckName) => {
-              const isStudying = isDeckStudying(deckName);
+            filteredDecks.map((deck) => {
+              const isStudying = isDeckStudying(deck.deckPath);
 
               return (
-                <div
-                  key={deckName}
-                  className="flex items-center justify-between bg-white p-4 rounded-xl shadow-md hover:shadow-lg transition duration-200 border border-gray-100"
-                >
-                  {/* 스터디 토글 버튼 */}
-                  <button
-                    onClick={() => handleToggleStudy(deckName)}
-                    className={`
+                <div key={deck.id}>
+                  <div className="flex items-center justify-between bg-white p-4 rounded-xl shadow-md hover:shadow-lg transition duration-200 border border-gray-100">
+                    {/* 스터디 토글 버튼 */}
+                    <button
+                      onClick={() => handleToggleStudy(deck.deckPath)}
+                      className={`
                       p-2 mr-4 rounded-full transition duration-200 flex-shrink-0
                       ${
                         isStudying
@@ -200,48 +227,48 @@ export const DeckSetting = () => {
                           : "bg-gray-200 text-gray-700 hover:bg-gray-300 shadow-inner"
                       }
                     `}
-                    aria-label={`${deckName} 스터디 ${
-                      isStudying ? "비활성화" : "활성화"
-                    } 토글`}
-                  >
-                    {isStudying ? (
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                        ></path>
-                      </svg>
-                    ) : (
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-                        ></path>
-                      </svg>
-                    )}
-                  </button>
+                      aria-label={`${deck} 스터디 ${
+                        isStudying ? "비활성화" : "활성화"
+                      } 토글`}
+                    >
+                      {isStudying ? (
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                          ></path>
+                        </svg>
+                      ) : (
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                          ></path>
+                        </svg>
+                      )}
+                    </button>
 
-                  {/* 덱 이름 */}
-                  <p className="flex-grow text-lg font-medium text-gray-800 break-words">
-                    {deckName}
-                    <span
-                      className={`
+                    {/* 덱 이름 */}
+                    <p className="flex-grow text-lg font-medium text-gray-800 break-words">
+                      {deck.deckPath}
+                      <span
+                        className={`
                         ml-3 text-xs font-semibold px-2 py-0.5 rounded-full
                         ${
                           isStudying
@@ -249,10 +276,16 @@ export const DeckSetting = () => {
                             : "bg-red-100 text-red-700"
                         }
                     `}
-                    >
-                      {isStudying ? "STUDY" : "SKIP"}
-                    </span>
-                  </p>
+                      >
+                        {isStudying ? "STUDY" : "SKIP"}
+                      </span>
+                    </p>
+
+                    {/* 기본덱은 제외 */}
+                    {deck.stats && (
+                      <p>{`new (${deck.stats.new_count})   learn (${deck.stats.learn_count})   review (${deck.stats.review_count})`}</p>
+                    )}
+                  </div>
                 </div>
               );
             })
