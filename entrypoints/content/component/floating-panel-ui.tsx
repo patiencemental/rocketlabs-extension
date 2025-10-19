@@ -6,6 +6,13 @@ import {
   Size,
 } from "@/entrypoints/content/component/floating-panel";
 import { cn } from "@/lib/utils";
+import { JSX } from "react";
+
+// 탭 정보와 이름을 정의합니다.
+const tabs: { key: string; name: string; component: JSX.Element }[] = [
+  { key: "deck-setting", name: "덱", component: <div>덱 세팅</div> },
+  { key: "study", name: "학습", component: <div>학습</div> },
+];
 
 type FloatingPanelUIProps = {
   position: Position;
@@ -26,6 +33,8 @@ export const FloatingPanelUI = ({
   handleResizeStart,
   handleSettingsClick,
 }: FloatingPanelUIProps) => {
+  const [selectedTab, setSelectedTab] = useState<string>("deck-setting");
+
   return (
     <section
       style={{
@@ -51,7 +60,7 @@ export const FloatingPanelUI = ({
           "px-4 py-3 cursor-move select-none flex-shrink-0 flex justify-between"
         )}
       >
-        <h3 className="font-semibold">Floating Panel</h3>
+        <h3 className="font-semibold">RocketLabs</h3>
         {/* Settings 버튼 */}
         <button
           id="settings-button"
@@ -76,6 +85,34 @@ export const FloatingPanelUI = ({
         </button>
       </header>
 
+      {/* ⭐️ 탭 리스트 (Tab List) */}
+      <div
+        className="flex border-b flex-shrink-0"
+        style={{ borderColor: colors.bodyText + "20" }} // 탭 구분선 색상
+      >
+        {tabs.map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => setSelectedTab(tab.key)} // 탭 선택 시 상태 변경
+            className={cn(
+              "px-4 py-2 text-sm font-medium transition-colors",
+              selectedTab === tab.key // 선택된 탭 스타일
+                ? "border-b-2"
+                : "opacity-70 hover:opacity-100" // 선택되지 않은 탭 스타일
+            )}
+            style={{
+              color: colors.bodyText,
+              borderColor:
+                selectedTab === tab.key ? colors.bodyText : "transparent", // 선택된 탭의 밑줄 색상
+              backgroundColor:
+                selectedTab === tab.key ? colors.bodyBg + "10" : "transparent", // 선택된 탭의 배경색 (약간의 강조)
+            }}
+          >
+            {tab.name}
+          </button>
+        ))}
+      </div>
+
       {/* 패널 내용 */}
       <div
         className="p-4 flex-grow overflow-auto"
@@ -83,11 +120,7 @@ export const FloatingPanelUI = ({
           color: colors.bodyText, // 내용 텍스트 색상 적용
         }}
       >
-        <p>
-          패널 내용이 여기에 들어갑니다. 패널 배경색: {colors.bodyBg}, 텍스트
-          색:
-          {colors.bodyText}
-        </p>
+        {tabs.find((tab) => tab.key === selectedTab)?.component}
       </div>
 
       <footer className="text-sm p-4 text-center text-gray-500 flex-shrink-0">
