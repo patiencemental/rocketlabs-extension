@@ -22,8 +22,39 @@ type Deck = {
   };
 };
 
+type CardInfo = {
+  answer: string;
+  buttons?: number[];
+  cardId: number;
+  css: string;
+  deckName: string;
+  due: number;
+  fieldOrder: number;
+  fields: Record<
+    string,
+    {
+      order: number;
+      value: string;
+    }
+  >;
+  interval: number;
+  lapses: number;
+  left: number;
+  mod: number;
+  modelName: string;
+  nextReviews: string[];
+  note: number;
+  ord: number;
+  question: string;
+  queue: number;
+  reps: number;
+  template: string;
+  type: number;
+};
+
 export const DeckSetting = () => {
   const [decks, setDecks] = useState<Deck[]>([]);
+  const [studyCardInfos, setStudyCardInfos] = useState<CardInfo[]>([]);
 
   // 현재 검색어
   const [searchInput, setSearchInput] = useState("");
@@ -83,6 +114,23 @@ export const DeckSetting = () => {
       setIsLoading(false);
     }
   }, []);
+
+  /**
+   * @Desc target 덱 변경 시 마다 cards 업데이트
+   */
+  useEffect(() => {
+    (async () => {
+      const deckQueries = targetDecks.map((d) => `deck:"${d}"`);
+      const query = `${deckQueries.join(" OR ")}`;
+      const cardIds = await client.card.findCards({
+        query,
+      });
+      const cardInfos = await client.card.cardsInfo({
+        cards: cardIds,
+      });
+      setStudyCardInfos(cardInfos);
+    })();
+  }, [targetDecks]);
 
   // ⭐️ 2. targetDecks 변경 시 로컬 스토리지에 저장
   useEffect(() => {
