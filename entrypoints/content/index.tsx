@@ -1,5 +1,6 @@
 import App from "@/entrypoints/content/App";
 import ReactDOM from "react-dom/client";
+import "@/assets/tailwind.css";
 
 export default defineContentScript({
   matches: ["*://*.notion.com/*"],
